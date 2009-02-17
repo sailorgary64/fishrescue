@@ -1,0 +1,2 @@
+- Split FPS code into an FPS class so it's accessible throughout
+- Make movement based on FPS
