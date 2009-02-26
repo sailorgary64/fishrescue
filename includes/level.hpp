@@ -3,6 +3,7 @@
 
 #include "includes.hpp"
 #include "player.hpp"
+#include "enemy.hpp"
 
 class Level	{
 public:
@@ -10,6 +11,7 @@ public:
 	~Level();
 	void draw();
 	Player* player;
+	Enemy* enemy;
 private:
 	void loadLevel();
 	void unloadLevel();
@@ -17,6 +19,7 @@ private:
 };
 
 inline void Level::draw()	{
+	this->enemy->draw();
 	this->player->draw();
 }
 

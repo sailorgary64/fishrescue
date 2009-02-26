@@ -2,6 +2,7 @@
 #define __ACTOR_HPP__
 
 #include "includes.hpp"
+#include "fps.hpp"
 
 //Abstract class
 class Actor	{
@@ -17,7 +18,7 @@ public:
 	virtual void backward(bool) = 0;
 protected:
 	int lives;
-	Coordinate location;	//contains the actor's location
+	static Coordinate location;	//contains the actor's location
 	Velocity velocity;
 	float direction;
 	bool l;
@@ -28,7 +29,8 @@ protected:
 	float dX;
 	float dY;
 	float acceleration;
-	float deceleration;
+	static const float deceleration = 0.01f;
+
 private:
 };
 

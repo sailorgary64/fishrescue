@@ -1,9 +1,10 @@
 #include "player.hpp"
 //#include "game.hpp"
 
+Coordinate Player::location;
+
 Player::Player()	{
 	acceleration = 0.05f;
-	deceleration = 0.01f;
 	score = 0;
 	lives = 1;
 	location.x = 0;
@@ -86,4 +87,8 @@ void Player::forward(bool t)	{
 
 void Player::backward(bool t)	{
 	b = t;
+}
+
+Coordinate Player::getLocation()	{
+	return location;
 }

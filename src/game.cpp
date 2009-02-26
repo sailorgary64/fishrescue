@@ -1,4 +1,5 @@
 #include "game.hpp"
+#include "fps.hpp"
 
 void* Game::game;
 
@@ -7,11 +8,7 @@ Game::Game()	{
 	level = new Level();
 	angle = 0;
 	this->game = (void*) this;
-	g_fps = 0;
-	fps = 0;
-	time = 0;
-	timebase = 0;
-	frame = 0;
+	fps = new Fps();
 }
 
 Game::~Game()	{
@@ -58,8 +55,8 @@ void Game::display()	{
 	glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity();
 	this->level->draw();
-	frameExecuted();
-	displayFps();
+	fps->frameExecuted();
+	fps->displayFps();
 	glFlush();
 	glutSwapBuffers();
 

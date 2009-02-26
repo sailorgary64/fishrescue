@@ -12,24 +12,24 @@ include(FindGLUT)
 #SET (CMAKE_MODULE_LINKER_FLAGS ${CMAKE_MODULE_LINKER_FLAGS_INIT} $ENV{LDFLAGS} "-l glut")
 
 SET(INCLUDE_FILES
-	includes/ltimer.h
-	includes/FramerateDisplayer.h
 	includes/includes.hpp
 	includes/game.hpp
 	includes/input.hpp
 	includes/actor.hpp
 	includes/player.hpp
 	includes/level.hpp
+	includes/fps.hpp
+	includes/enemy.hpp
 )
 
 SET(CODE_FILES
-	src/ltimer.cpp
-	src/FramerateDisplayer.cpp
 	src/main.cpp
 	src/game.cpp
 	src/input.cpp
 	src/player.cpp
 	src/level.cpp
+	src/fps.cpp
+	src/enemy.cpp
 )
 
 if(CMAKE_SYSTEM_NAME MATCHES "Windows")
