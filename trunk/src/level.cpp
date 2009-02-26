@@ -2,6 +2,7 @@
 
 Level::Level()	{
 	player = new Player();
+	enemy = new Enemy();
 	levelNo = 0;
 }
 

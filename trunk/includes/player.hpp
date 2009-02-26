@@ -2,7 +2,7 @@
 #define __PLAYER_HPP__
 
 #include "actor.hpp"
-#include <cmath>
+//#include "fps.hpp"
 
 class Player	:	public Actor	{
 public:
@@ -13,10 +13,14 @@ public:
 	void right(bool);
 	void forward(bool);
 	void backward(bool);
+	static Coordinate getLocation();
+
 private:
+	static Coordinate location;
 	float acceleration;
-	float deceleration;
 	int score;
+	float dtheta;
+	float direction;
 	GLuint body;
 	GLuint tentacles;
 };
@@ -38,8 +42,8 @@ inline void Player::draw()	{
 			dTheta = 0;
 		}
 	}
-	direction += dTheta;
-	if (direction > 360)	{
+	direction += dTheta / (250/(Fps::getFps()+1));
+	if (direction >= 360)	{
 		direction -= 360;
 	}
 	if (direction < 0)	{
@@ -48,22 +52,26 @@ inline void Player::draw()	{
 	if (f)	{
 		dX = acceleration*cos(D2R(direction));
 		dY = acceleration*sin(D2R(direction));
+		dX /= (250/(Fps::getFps()+1));
+		dY /= (250/(Fps::getFps()+1));
 		velocity.vx += dX;
 		velocity.vy += dY;
 	}
 	else if (b)	{
 		dX = -(acceleration*cos(D2R(direction)));
 		dY = -(acceleration*sin(D2R(direction)));
+		dX /= (250/(Fps::getFps()+1));
+		dY /= (250/(Fps::getFps()+1));
 		velocity.vx += dX;
 		velocity.vy += dY;
 	}
 	else {
-		velocity.vx *= (1-deceleration);
-		velocity.vy *= (1-deceleration);
+		velocity.vx *= ((1-deceleration)/(250/(Fps::getFps()+1)));
+		velocity.vy *= ((1-deceleration)/(250/(Fps::getFps()+1)));
 	}
 	velocity.magnitude = sqrt(velocity.vx*velocity.vx + velocity.vy*velocity.vy);
 	if(velocity.magnitude > 2)	{
-		float tempDecel = 2/velocity.magnitude;
+		float tempDecel = (2/velocity.magnitude)/(250/(Fps::getFps()+1));
 		velocity.vx *= tempDecel;
 		velocity.vy *= tempDecel;
 	}
@@ -84,7 +92,6 @@ inline void Player::draw()	{
 	//glCallList(tentacles);
 	glPopMatrix();
 	glFlush();
-	std::cout << g_fps << std::endl;
 };
 
 #endif //__PLAYER_HPP__
