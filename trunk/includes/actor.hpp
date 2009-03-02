@@ -16,10 +16,22 @@ public:
 	virtual void right(bool) = 0;
 	virtual void forward(bool) = 0;
 	virtual void backward(bool) = 0;
+	virtual void collide(Actor*) = 0;
+	float getDirection()	{
+		return direction;
+	}
+	Coordinate getLocation()	{
+		return location;
+	}
+	void setCurrentCell(int c)	{
+		this->cell = c;
+	}
+
 protected:
+	virtual void detectCollisions() = 0;
 	int lives;
-	static Coordinate location;	//contains the actor's location
-	Velocity velocity;
+	Coordinate location;	//contains the actor's location
+	Vector velocity;
 	float direction;
 	bool l;
 	bool r;
@@ -29,9 +41,10 @@ protected:
 	float dX;
 	float dY;
 	float acceleration;
-	static const float deceleration = 0.01f;
+	static const float deceleration;
+	AABB bbox;
+	int cell;
 
 private:
 };
-
 #endif //__ACTOR_HPP__

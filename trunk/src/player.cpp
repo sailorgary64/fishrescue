@@ -1,17 +1,19 @@
 #include "player.hpp"
 //#include "game.hpp"
 
-Coordinate Player::location;
-
 Player::Player()	{
 	acceleration = 0.05f;
+	deceleration = 0.01f;
 	score = 0;
-	lives = 1;
+	lives = 8;
 	location.x = 0;
 	location.y = 0;
 	velocity.vx = 0;
 	velocity.vy = 0;
 	velocity.magnitude = 0;
+	bbox.c = &location;
+	bbox.hwidth = 70;
+	bbox.hheight = 70;
 	direction = 0;
 	dTheta = 0;
 	dX = 0;
@@ -21,7 +23,7 @@ Player::Player()	{
 	f = false;
 	b = false;
 	body = glGenLists(2);
-	tentacles = body+1;
+	tentacle = body+1;
 
 	glNewList(body,GL_COMPILE);
 		glColor3f(0.89,0.54,0.22);
@@ -60,13 +62,21 @@ Player::Player()	{
 		glEnd();
 	glEndList();
 
-	glNewList(tentacles, GL_COMPILE);
-		glColor3f(0.89,0.54,0.22);
-		for(int i = 0; i < 8; i++)	{
-			glBegin(GL_POLYGON);
-				//TODO:: make legs
-			glEnd();
-		}
+	glNewList(tentacle, GL_COMPILE);
+		glColor3f(0.79,0.44,0.12);
+		glBegin(GL_POLYGON);
+			glVertex2f(1024/200 + 10, 5);
+			glVertex2f(1024/200 + 30, 8);
+			glVertex2f(1024/200 + 30, -8);
+			glVertex2f(1024/200 + 10, -5);
+		glEnd();
+		glBegin(GL_POLYGON);
+			for(int i=0; i<360; i+=5)	{
+				float xcoord = 35 + 1024/120 * cos(D2R(i));
+				float ycoord = 1024/120 * sin(D2R(i));
+				glVertex2f(xcoord, ycoord);
+			}
+		glEnd();
 	glEndList();
 }
 
@@ -89,6 +99,17 @@ void Player::backward(bool t)	{
 	b = t;
 }
 
-Coordinate Player::getLocation()	{
-	return location;
+void Player::detectCollisions()	{
+	
+}
+
+void Player::collide(Actor* obj)	{
+	int currentFps = Fps::getFps();
+	this->lives--;
+	dX = acceleration*cos(D2R(obj->getDirection()));
+	dY = acceleration*sin(D2R(obj->getDirection()));
+	dX *= (250/currentFps);
+	dY *= (250/currentFps);
+	velocity.vx += dX;
+	velocity.vy += dY;
 }

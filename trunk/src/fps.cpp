@@ -13,7 +13,7 @@ int Fps::timebase;*/
 int Fps::fps;
 
 Fps::Fps()	{
-	fps = 0;
+	fps = 250;
 	time = 0;
 	timebase = 0;
 	frame = 0;
@@ -26,8 +26,8 @@ Fps::~Fps()	{
 void Fps::frameExecuted()	{
 	frame++;
 	time=glutGet(GLUT_ELAPSED_TIME);
-	if (time - timebase > 1000) {
-		fps = frame*1000.0/(time-timebase);
+	if ((time - timebase) > 1000) {
+		fps = (frame*1000.0)/(time-timebase);
 		timebase = time;
 		frame = 0;
 	}

@@ -7,6 +7,7 @@
 #include <sstream>
 #include <cstdlib>
 #include <string>
+#include <vector>
 #include <cmath>
 using namespace std;
 
@@ -23,7 +24,14 @@ typedef struct	{
 	float vx;
 	float vy;
 	float magnitude;
-} Velocity;
+} Vector;
+
+typedef struct	{
+	Coordinate* c;
+	float hwidth;
+	float hheight;
+} AABB;
+
 
 static void renderString(float x, float y, std::string s)	{
 	glColor3f(1.0, 1.0, 1.0);
