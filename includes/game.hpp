@@ -25,6 +25,8 @@ private:
 	int screenWidth;
 	int screenHeight;
 	Fps* fps;
+	int currentTime;
+	int lastTime;
 };
 
 #endif //__GAME_HPP__

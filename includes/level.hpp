@@ -7,20 +7,31 @@
 
 class Level	{
 public:
+	typedef struct	{
+		int id;
+		float left;
+		float right;
+		float top;
+		float bottom;
+		vector<Actor*>* actors;
+	} Cell;
+
 	Level();
 	~Level();
 	void draw();
-	Player* player;
-	Enemy* enemy;
-private:
-	void loadLevel();
-	void unloadLevel();
-	int levelNo;
-};
+	static Level* getLevelHandle();
 
-inline void Level::draw()	{
-	this->enemy->draw();
-	this->player->draw();
-}
+	static vector<Cell>* cellList;
+	Actor* player;
+
+private:
+	void loadLevel(vector<Cell>*);
+	void unloadLevel(vector<Cell>*);
+	void setCurrentActorCell(Actor*);
+
+	int levelNo;
+	vector<Actor*>* enemies;
+	static void* level;
+};
 
 #endif //__LEVEL_HPP__
