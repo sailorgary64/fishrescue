@@ -20,6 +20,7 @@ SET(INCLUDE_FILES
 	includes/level.hpp
 	includes/fps.hpp
 	includes/enemy.hpp
+	includes/cell.hpp
 )
 
 SET(CODE_FILES
@@ -30,6 +31,7 @@ SET(CODE_FILES
 	src/level.cpp
 	src/fps.cpp
 	src/enemy.cpp
+	src/cell.cpp
 )
 
 if(CMAKE_SYSTEM_NAME MATCHES "Windows")

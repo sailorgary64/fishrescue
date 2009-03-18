@@ -16,19 +16,37 @@ public:
 	virtual void right(bool) = 0;
 	virtual void forward(bool) = 0;
 	virtual void backward(bool) = 0;
-	virtual void collide(Actor*) = 0;
+	virtual void attack(bool) = 0;
 	float getDirection()	{
 		return direction;
 	}
 	Coordinate getLocation()	{
 		return location;
 	}
+	Vector getVelocity()	{
+		return velocity;
+	}
+	float getDistance(Coordinate otherLoc)	{
+		float diffx = abs(otherLoc.x - location.x);
+		float diffy = abs(otherLoc.y - location.y);
+		float dist = (float)sqrt((diffx*diffx)+(diffy*diffy));
+		return dist - bbox.hwidth;
+	}
 	void setCurrentCell(int c)	{
 		this->cell = c;
 	}
+	int getCurrentCellId()	{
+		return this->cell;
+	}
+	int getId()	{
+		return this->id;
+	}
+	virtual Collision collide(Actor*) = 0;
+	virtual void die() = 0;
+	bool attacking;
 
 protected:
-	virtual void detectCollisions() = 0;
+	int id;
 	int lives;
 	Coordinate location;	//contains the actor's location
 	Vector velocity;
@@ -44,6 +62,8 @@ protected:
 	static const float deceleration;
 	AABB bbox;
 	int cell;
+
+	virtual Collision detectCollisions() = 0;
 
 private:
 };

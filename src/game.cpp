@@ -11,11 +11,14 @@ Game::Game()	{
 	fps = new Fps();
 	currentTime = 0;
 	lastTime = 0;
+	//glEnable(GL_TEXTURE_2D);
 }
 
 Game::~Game()	{
 	delete this->input;
 	delete this->level;
+	delete this->fps;
+	//glDisable(GL_TEXTURE_2D);
 }
 
 void Game::setMode(int width, int height)	{
@@ -52,7 +55,6 @@ void Game::display()	{
 		fps->displayFps();
 		//glFlush();
 		glutSwapBuffers();
-
 		//Check to see if any keys have been pressed and deal with them
 		//before rendering the next frame
 		while(Input::checkKeyBuffer())	{
@@ -60,6 +62,8 @@ void Game::display()	{
 			switch(k.nKey)	{
 				case 27:
 					exit(0);
+				case 32:
+					level->player->attack(k.pressed);
 				default:
 					break;
 			}
