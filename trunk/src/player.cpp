@@ -2,18 +2,20 @@
 //#include "game.hpp"
 
 Player::Player()	{
+	this->id = 0;
+	this->cell = -1;
 	acceleration = 0.05f;
 	deceleration = 0.01f;
 	score = 0;
-	lives = 8;
-	location.x = 0;
-	location.y = 0;
+	this->lives = 8;
+	location.x = 500;
+	location.y = 500;
 	velocity.vx = 0;
 	velocity.vy = 0;
 	velocity.magnitude = 0;
 	bbox.c = &location;
-	bbox.hwidth = 70;
-	bbox.hheight = 70;
+	bbox.hwidth = 42;
+	bbox.hheight = 21;
 	direction = 0;
 	dTheta = 0;
 	dX = 0;
@@ -22,8 +24,14 @@ Player::Player()	{
 	r = false;
 	f = false;
 	b = false;
+	safetimer = -3000;
+	hit = false;
+	safe = false;
+	flash = false;
 	body = glGenLists(2);
 	tentacle = body+1;
+	attacking = false;
+	atkspin = 0;
 
 	glNewList(body,GL_COMPILE);
 		glColor3f(0.89,0.54,0.22);
@@ -99,17 +107,102 @@ void Player::backward(bool t)	{
 	b = t;
 }
 
-void Player::detectCollisions()	{
-	
+void Player::attack(bool t)	{
+	attacking = t;
+	atkspin = 0;
 }
 
-void Player::collide(Actor* obj)	{
-	int currentFps = Fps::getFps();
-	this->lives--;
-	dX = acceleration*cos(D2R(obj->getDirection()));
-	dY = acceleration*sin(D2R(obj->getDirection()));
-	dX *= (250/currentFps);
-	dY *= (250/currentFps);
-	velocity.vx += dX;
-	velocity.vy += dY;
+Collision Player::detectCollisions()	{
+	Cell* cell = Level::cellList->at(this->cell);
+	vector<Cell*>* cellCheckList = new vector<Cell*>;
+	cellCheckList->push_back(cell);
+	Coordinate offsetLoc;
+	offsetLoc.x = this->location.x - cell->left;
+	offsetLoc.y = this->location.y - cell->bottom;
+
+	if(offsetLoc.x + bbox.hwidth > cell->right)	{
+		cellCheckList->push_back(Level::cellList->at(this->cell+1));
+	}
+	if(offsetLoc.x - bbox.hwidth < cell->left)	{
+		cellCheckList->push_back(Level::cellList->at(this->cell-1));
+	}
+	if(offsetLoc.y + bbox.hwidth > cell->top)	{
+		cellCheckList->push_back(Level::cellList->at(this->cell+3));
+	}
+	if(offsetLoc.y - bbox.hwidth < cell->bottom)	{
+		cellCheckList->push_back(Level::cellList->at(this->cell-3));
+	}
+	//No need to worry about array bounds as the cells at the edge of the level and therefore the edge
+	//of the array cannot have the player overlapping any edges that would cause a problem.
+
+	Collision c;
+	c.happened = false;
+	c.vx = 0;
+	c.vy = 0;
+
+	for (vector<Cell*>::iterator it = cellCheckList->begin(); it != cellCheckList->end(); ++it)	{
+		Collision c1;
+		c1 = cell->checkCollision(offsetLoc, this->bbox.hwidth, this->velocity);
+		Collision c2;
+		c2.happened = false;
+		c2.vx = 0;
+		c2.vy = 0;
+
+		int s = cell->actors.size();
+		if(s > 1)	{
+			map<int,Actor*>::iterator it;
+			Actor* a;
+			for (it = cell->actors.begin(); it != cell->actors.end(); ++it)	{
+				a = (*it).second;
+				if(a->getId() != this->id)	{
+					float dist = a->getDistance(this->location);
+					if(dist < this->bbox.hheight)	{
+						a->collide(this);
+						c2 = collide(a);
+					}
+				}
+			}
+		}
+		if (c1.happened)	{
+			c.happened = true;
+			c.vx += c1.vx;
+			c.vy += c1.vy;
+		}
+		if (c2.happened)	{
+			c.happened = true;
+			c.vx += c2.vx;
+			c.vy += c2.vy;
+		}
+	}
+	return c;
+}
+
+Collision Player::collide(Actor* obj)	{
+	Collision c;
+	if(!safe && !attacking)	{
+		this->lives--;
+		if(lives <= 0)	{
+			Level::gameOver();
+		}
+		safetimer = glutGet(GLUT_ELAPSED_TIME);
+		c.happened = true;
+		Vector veloc = obj->getVelocity();
+		c.vx = veloc.vx;
+		c.vy = veloc.vy;
+		hit = true;
+		safe = true;
+	}
+	else {
+		if(attacking)	{
+			obj->die();
+		}
+		c.happened = false;
+		c.vx = 0;
+		c.vy = 0;
+	}
+	return c;
+}
+
+void Player::die()	{
+
 }

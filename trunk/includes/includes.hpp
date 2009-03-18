@@ -6,8 +6,10 @@
 #include <iostream>
 #include <sstream>
 #include <cstdlib>
+#include <cstring>
 #include <string>
 #include <vector>
+#include <map>
 #include <cmath>
 using namespace std;
 
@@ -32,8 +34,14 @@ typedef struct	{
 	float hheight;
 } AABB;
 
+typedef struct {
+	bool happened;
+	float vx;
+	float vy;
+} Collision;
 
 static void renderString(float x, float y, std::string s)	{
+	//glDisable(GL_TEXTURE_2D);
 	glColor3f(1.0, 1.0, 1.0);
 	glRasterPos2f(x,y);
 	std::string::iterator it = s.begin();
@@ -41,6 +49,8 @@ static void renderString(float x, float y, std::string s)	{
 		glutBitmapCharacter(GLUT_BITMAP_8_BY_13,*it);
 		it++;
 	}
+	glColor3f(0.0,0.0,0.0);
+	//glEnable(GL_TEXTURE_2D);
 };
 
 static string float2String(float x)	{
