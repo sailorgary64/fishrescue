@@ -5,6 +5,7 @@
 #include "cell.hpp"
 #include "player.hpp"
 #include "enemy.hpp"
+#include "friendly.hpp"
 
 class Level	{
 public:
@@ -17,6 +18,8 @@ public:
 
 	static vector<Cell*>* cellList;
 	Actor* player;
+	vector<Actor*>* enemies;
+	vector<Actor*>* friendlies;
 
 private:
 	void loadLevel(vector<Cell*>*);
@@ -29,7 +32,6 @@ private:
 	map<cellType, GLuint> cellTextures;
 
 	int levelNo;
-	vector<Actor*>* enemies;
 	static void* level;
 };
 

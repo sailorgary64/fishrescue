@@ -7,6 +7,7 @@ Level::Level()	{
 	levelNo = 0;
 	cellList = new vector<Cell*>();
 	enemies = new vector<Actor*>();
+	friendlies = new vector<Actor*>();
 	loadTextures();
 	loadLevel(cellList);
 	level = (void*) this;
@@ -17,6 +18,7 @@ Level::~Level()	{
 	unloadTextures();
 	delete this->player;
 	delete this->enemies;
+	delete this->friendlies;
 	delete this->cellList;
 
 }
@@ -41,6 +43,11 @@ void Level::draw()	{
 
 	vector<Actor*>::iterator ait;
 	Actor* a;
+	for(ait = friendlies->begin(); ait != friendlies->end(); ++ait)	{
+		a = *ait;
+		a->draw();
+		setCurrentActorCell(a);
+	}
 	for(ait = enemies->begin(); ait != enemies->end(); ++ait)	{
 		a = *ait;
 		a->draw();
@@ -96,7 +103,8 @@ void Level::loadLevel(vector<Cell*>* cellList)	{
 		}
 	}
 	this->player = new Player();
-	enemies->push_back(new Enemy(1));
+	//enemies->push_back(new Enemy(1));
+	friendlies->push_back(new Friendly(1));
 }
 
 Level* Level::getLevelHandle()	{
@@ -224,10 +232,25 @@ bool Level::loadImage(string filename, GLuint& texture)	{
 
 void Level::killActor(Actor* a)	{
 	vector<Actor*>::iterator it;
-	for (it = this->enemies->begin(); it != this->enemies->end(); ++it)	{
-		if ((*it)->getId() == a->getId())  {
-			enemies->erase(it);
-			return;
-		}
+	actorType at = a->getType();
+	switch(at)	{
+		case ENEMY:
+			for (it = this->enemies->begin(); it != this->enemies->end(); ++it)	{
+				if ((*it)->getId() == a->getId())  {
+					enemies->erase(it);
+					break;
+				}
+			}
+			break;
+		case FRIENDLY:
+			for (it = this->friendlies->begin(); it != this->friendlies->end(); ++it)	{
+				if ((*it)->getId() == a->getId())  {
+					friendlies->erase(it);
+					break;
+				}
+			}
+			break;
+		default:
+			break;
 	}
 }

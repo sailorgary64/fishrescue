@@ -20,6 +20,7 @@ SET(INCLUDE_FILES
 	includes/level.hpp
 	includes/fps.hpp
 	includes/enemy.hpp
+	includes/friendly.hpp
 	includes/cell.hpp
 )
 
@@ -31,6 +32,7 @@ SET(CODE_FILES
 	src/level.cpp
 	src/fps.cpp
 	src/enemy.cpp
+	src/friendly.cpp
 	src/cell.cpp
 )
 

@@ -26,7 +26,7 @@ typedef struct	{
 	float vx;
 	float vy;
 	float magnitude;
-} Vector;
+} Velocity;
 
 typedef struct	{
 	Coordinate* c;

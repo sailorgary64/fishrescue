@@ -2,7 +2,6 @@
 #define __PLAYER_HPP__
 
 #include "actor.hpp"
-//#include "cell.hpp"
 #include "level.hpp"
 
 class Player	:	public Actor	{
@@ -10,15 +9,15 @@ public:
 	Player();
 	~Player();
 	void draw();
-	void left(bool);
-	void right(bool);
-	void forward(bool);
-	void backward(bool);
 	void attack(bool);
 	Collision collide(Actor*);
 	void die();
+	static Player* getPlayerHandle()	{
+		return player;
+	}
 
 private:
+	static Player* player;
 	void drawPlayer();
 	Collision detectCollisions();
 	//static Coordinate location;
@@ -26,7 +25,6 @@ private:
 	float deceleration;
 	int score;
 	float dtheta;
-	float direction;
 	GLuint body;
 	GLuint tentacle;
 	int safetimer;
@@ -102,9 +100,9 @@ inline void Player::draw()	{
 	location.x += velocity.vx;
 	location.y += velocity.vy;
 
-	string s = "Player cell: ";
+	/* string s = "Player cell: ";
 	s.append(float2String(this->cell));
-	renderString(700,730,s);
+	renderString(700,730,s); */
 
 	if(attacking)	{
 		int atkspeed = 6;
