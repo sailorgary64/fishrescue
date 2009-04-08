@@ -1,8 +1,12 @@
 #include "player.hpp"
 //#include "game.hpp"
 
+Player* Player::player;
+
 Player::Player()	{
+	this->player = this;
 	this->id = 0;
+	this->type = PLAYER;
 	this->cell = -1;
 	acceleration = 0.05f;
 	deceleration = 0.01f;
@@ -91,22 +95,6 @@ Player::Player()	{
 Player::~Player()	{
 }
 
-void Player::left(bool t)	{
-	l = t;
-}
-
-void Player::right(bool t)	{
-	r = t;
-}
-
-void Player::forward(bool t)	{
-	f = t;
-}
-
-void Player::backward(bool t)	{
-	b = t;
-}
-
 void Player::attack(bool t)	{
 	attacking = t;
 	atkspin = 0;
@@ -179,27 +167,47 @@ Collision Player::detectCollisions()	{
 
 Collision Player::collide(Actor* obj)	{
 	Collision c;
-	if(!safe && !attacking)	{
-		this->lives--;
-		if(lives <= 0)	{
-			Level::gameOver();
-		}
-		safetimer = glutGet(GLUT_ELAPSED_TIME);
-		c.happened = true;
-		Vector veloc = obj->getVelocity();
-		c.vx = veloc.vx;
-		c.vy = veloc.vy;
-		hit = true;
-		safe = true;
+	actorType at = obj->getType();
+	switch(at)	{
+		case ENEMY:
+			if(!safe && !attacking)	{
+				this->lives--;
+				if(lives <= 0)	{
+					Level::gameOver();
+				}
+				safetimer = glutGet(GLUT_ELAPSED_TIME);
+				c.happened = true;
+				Velocity veloc = obj->getVelocity();
+				c.vx = veloc.vx;
+				c.vy = veloc.vy;
+				hit = true;
+				safe = true;
+			}
+			else {
+				if(attacking)	{
+					obj->die();
+					score += 200;
+				}
+				c.happened = false;
+				c.vx = 0;
+				c.vy = 0;
+			}
+			break;
+
+		case FRIENDLY:
+			c.happened = false;	//Though a collision occurred, we ignore it. These fish are friends :)
+			c.vx = 0;
+			c.vy = 0;
+			score += 50;
+			break;
+
+		default:
+			c.happened = false;
+			c.vx = 0;
+			c.vy = 0;
+			break;
 	}
-	else {
-		if(attacking)	{
-			obj->die();
-		}
-		c.happened = false;
-		c.vx = 0;
-		c.vy = 0;
-	}
+
 	return c;
 }
 
