@@ -8,12 +8,12 @@
 
 class Game	{
 public:
-	Game();
+	Game(int width, int height);
 	~Game();
 
 	static void displayWrapper();
 	void display();		//Main display function
-	void setMode(int width, int height);
+	//void setMode(int width, int height);
 	static int getScreenWidth();
 	static int getScreenHeight();
 
@@ -27,6 +27,7 @@ private:
 	Fps* fps;
 	int currentTime;
 	int lastTime;
+	bool updateWorld;
 };
 
 #endif //__GAME_HPP__

@@ -15,16 +15,15 @@
 class Friendly: public Actor {
 public:
 	Friendly(int);
+	Friendly(Actor*);
 	virtual ~Friendly();
-	void draw();
+	void draw(Coordinate);
 	void attack(bool);
 	Collision collide(Actor*);
 	void die();
 
 private:
 	Collision detectCollisions();
-	//static Coordinate location;
-	//Vector velocity;
 	Collision collision;
 	float acceleration;
 	float deceleration;
@@ -41,7 +40,7 @@ private:
 	Actor* playerHandle;
 };
 
-inline void Friendly::draw()	{
+inline void Friendly::draw(Coordinate playerLoc)	{
 	int currentFps = Fps::getFps();
 	if (currentFps < 1)	{
 		currentFps = 1;
@@ -100,6 +99,7 @@ inline void Friendly::draw()	{
 		velocity.vx *= tempDecel;
 		velocity.vy *= tempDecel;
 	}
+	calculateBBox();
 	if(this->cell != -1)	{
 		detectCollisions();
 	}
@@ -113,7 +113,17 @@ inline void Friendly::draw()	{
 
 	//Final stuff
 	glPushMatrix();
-	glTranslatef(location.x,location.y,0);
+	glTranslatef(location.x - playerLoc.x, location.y - playerLoc.y, 0);
+	/*glBegin(GL_LINES);	//Check the bounding box
+		glVertex2f(- bbox.hwidth, - bbox.hheight);
+		glVertex2f(- bbox.hwidth, bbox.hheight);
+		glVertex2f(- bbox.hwidth, bbox.hheight);
+		glVertex2f(bbox.hwidth, bbox.hheight);
+		glVertex2f(bbox.hwidth, bbox.hheight);
+		glVertex2f(bbox.hwidth, - bbox.hheight);
+		glVertex2f(bbox.hwidth, - bbox.hheight);
+		glVertex2f(- bbox.hwidth, - bbox.hheight);
+	glEnd();*/
 	glRotatef((direction),0.0,0.0,1.0);
 	glCallList(friends);
 	glPopMatrix();

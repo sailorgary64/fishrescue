@@ -53,6 +53,14 @@ static void renderString(float x, float y, std::string s)	{
 	//glEnable(GL_TEXTURE_2D);
 };
 
+static string int2String(int x)	{
+	ostringstream s;
+	s << x;
+	string S;
+	S = s.str();
+	return S;
+}
+
 static string float2String(float x)	{
 	ostringstream s;
 	s << x;

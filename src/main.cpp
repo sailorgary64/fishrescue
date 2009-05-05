@@ -18,7 +18,7 @@ int main (int argc, char** argv)	{
 	glutInitWindowPosition(10,10);
 	glutInitWindowSize(1024,768);
 	glutCreateWindow("Fish rescue");
-	glutFullScreen();
+	//glutFullScreen();
 
 	//Set screen mode at 800x600 w/ 32bit colour
 	//TODO: make this changeable with an option menu
@@ -36,8 +36,8 @@ int main (int argc, char** argv)	{
 	}
 	glutEnterGameMode();
 	*/
-	Game* game = new Game();
-	game->setMode(1024,768);
+	Game* game = new Game(1024,768);
+	//game->setMode(1024,768);
 	/*game->setMode(glutGameModeGet(GLUT_GAME_MODE_WIDTH), glutGameModeGet(GLUT_GAME_MODE_HEIGHT));
 	stm << "Current Mode: Game Mode " << game->getScreenHeight()
 		<< "x" << game->getScreenWidth()

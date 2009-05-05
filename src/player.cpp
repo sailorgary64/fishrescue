@@ -12,11 +12,13 @@ Player::Player()	{
 	deceleration = 0.01f;
 	score = 0;
 	this->lives = 8;
-	location.x = 500;
-	location.y = 500;
+	location.x = 700;
+	location.y = 200;
 	velocity.vx = 0;
 	velocity.vy = 0;
 	velocity.magnitude = 0;
+	hwidth = 42;
+	hheight = 21;
 	bbox.c = &location;
 	bbox.hwidth = 42;
 	bbox.hheight = 21;
@@ -36,6 +38,11 @@ Player::Player()	{
 	tentacle = body+1;
 	attacking = false;
 	atkspin = 0;
+	sucked = false;
+	offset.x = 0;
+	offset.y = 0;
+	wpLoc.x = 0;
+	wpLoc.y = 0;
 
 	glNewList(body,GL_COMPILE);
 		glColor3f(0.89,0.54,0.22);
@@ -101,24 +108,36 @@ void Player::attack(bool t)	{
 }
 
 Collision Player::detectCollisions()	{
-	Cell* cell = Level::cellList->at(this->cell);
+	Cell* tempcell = Level::cellList->at(this->cell);
 	vector<Cell*>* cellCheckList = new vector<Cell*>;
-	cellCheckList->push_back(cell);
+	cellCheckList->push_back(tempcell);
 	Coordinate offsetLoc;
-	offsetLoc.x = this->location.x - cell->left;
-	offsetLoc.y = this->location.y - cell->bottom;
+	offsetLoc.x = this->location.x - tempcell->left;
+	offsetLoc.y = this->location.y - tempcell->bottom;
 
-	if(offsetLoc.x + bbox.hwidth > cell->right)	{
+	if(offsetLoc.x + hwidth > tempcell->right)	{
 		cellCheckList->push_back(Level::cellList->at(this->cell+1));
 	}
-	if(offsetLoc.x - bbox.hwidth < cell->left)	{
-		cellCheckList->push_back(Level::cellList->at(this->cell-1));
+	if(offsetLoc.x - hwidth < tempcell->left)	{
+		if(this->cell > 0)	cellCheckList->push_back(Level::cellList->at(this->cell-1));
 	}
-	if(offsetLoc.y + bbox.hwidth > cell->top)	{
-		cellCheckList->push_back(Level::cellList->at(this->cell+3));
+	if(offsetLoc.y + hwidth > tempcell->top)	{
+		cellCheckList->push_back(Level::cellList->at(this->cell+4));		//TODO: Change 4 to be a variable that is
+	}																		//		the number of cells in a row
+	if(offsetLoc.y - hwidth < tempcell->bottom)	{
+		if(this->cell > 3) cellCheckList->push_back(Level::cellList->at(this->cell-4));
 	}
-	if(offsetLoc.y - bbox.hwidth < cell->bottom)	{
-		cellCheckList->push_back(Level::cellList->at(this->cell-3));
+	if((offsetLoc.x - hwidth < tempcell->left) && (offsetLoc.y + hwidth > tempcell->top))	{
+		cellCheckList->push_back(Level::cellList->at(this->cell + 3));
+	}
+	if((offsetLoc.x + hwidth > tempcell->right) && (offsetLoc.y + hwidth > tempcell->top))	{
+		cellCheckList->push_back(Level::cellList->at(this->cell + 5));		//TODO: Sort this stuff out
+	}
+	if((offsetLoc.x - hwidth > tempcell->left) && (offsetLoc.y - hwidth < tempcell->bottom))	{
+		if(this->cell > 4) cellCheckList->push_back(Level::cellList->at(this->cell - 5));
+	}
+	if((offsetLoc.x + hwidth > tempcell->right) && (offsetLoc.y - hwidth < tempcell->bottom))	{
+		if(this->cell > 2) cellCheckList->push_back(Level::cellList->at(this->cell - 3));
 	}
 	//No need to worry about array bounds as the cells at the edge of the level and therefore the edge
 	//of the array cannot have the player overlapping any edges that would cause a problem.
@@ -128,23 +147,26 @@ Collision Player::detectCollisions()	{
 	c.vx = 0;
 	c.vy = 0;
 
+	Collision c1;
+	c1 = tempcell->checkCollision(offsetLoc, this->bbox.hwidth, this->velocity);
+
 	for (vector<Cell*>::iterator it = cellCheckList->begin(); it != cellCheckList->end(); ++it)	{
-		Collision c1;
-		c1 = cell->checkCollision(offsetLoc, this->bbox.hwidth, this->velocity);
+		tempcell = *it;
 		Collision c2;
 		c2.happened = false;
 		c2.vx = 0;
 		c2.vy = 0;
-
-		int s = cell->actors.size();
+		int s = tempcell->actors.size();
 		if(s > 1)	{
-			map<int,Actor*>::iterator it;
+			map<int,Actor*>::iterator mit;
 			Actor* a;
-			for (it = cell->actors.begin(); it != cell->actors.end(); ++it)	{
-				a = (*it).second;
+			for (mit = tempcell->actors.begin(); mit != tempcell->actors.end(); ++mit)	{
+				a = (*mit).second;
 				if(a->getId() != this->id)	{
 					float dist = a->getDistance(this->location);
-					if(dist < this->bbox.hheight)	{
+					AABB theirBox = a->getBBox();
+					dist -= theirBox.hwidth;
+					if(dist < this->bbox.hheight)	{		//TODO: sort out bounding boxes
 						a->collide(this);
 						c2 = collide(a);
 					}
@@ -198,7 +220,13 @@ Collision Player::collide(Actor* obj)	{
 			c.happened = false;	//Though a collision occurred, we ignore it. These fish are friends :)
 			c.vx = 0;
 			c.vy = 0;
-			score += 50;
+			break;
+
+		case POOL:
+			c.happened = true;
+			sucked = true;
+			c.vx = 0;
+			c.vy = 0;
 			break;
 
 		default:
@@ -213,4 +241,10 @@ Collision Player::collide(Actor* obj)	{
 
 void Player::die()	{
 
+}
+
+void Player::finishLevel()	{
+	Level* level = (Level*)Level::getLevelHandle();
+	score += 500;	//TODO: Get extra score for time bonus and for leading fish to exit
+	level->finished();
 }
