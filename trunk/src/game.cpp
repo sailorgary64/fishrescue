@@ -3,28 +3,29 @@
 
 void* Game::game;
 
-Game::Game()	{
+Game::Game(int width, int height)	{
 	input = new Input();
-	level = new Level();
+	level = new Level(width, height);
 	angle = 0;
 	this->game = (void*) this;
 	fps = new Fps();
 	currentTime = 0;
 	lastTime = 0;
-	//glEnable(GL_TEXTURE_2D);
+	this->screenHeight = height;
+	this->screenWidth = width;
+	updateWorld = true;
 }
 
 Game::~Game()	{
 	delete this->input;
 	delete this->level;
 	delete this->fps;
-	//glDisable(GL_TEXTURE_2D);
 }
 
-void Game::setMode(int width, int height)	{
+/*void Game::setMode(int width, int height)	{
 	this->screenHeight = height;
 	this->screenWidth = width;
-}
+}*/
 
 int Game::getScreenHeight()	{
 	Game* g = (Game*) Game::game;
@@ -44,26 +45,40 @@ void Game::displayWrapper()	{
 void Game::display()	{
 	currentTime = glutGet(GLUT_ELAPSED_TIME);
 	if ((currentTime - lastTime) >= 1000/250)	{
-		glClear(GL_COLOR_BUFFER_BIT);
-		glMatrixMode(GL_PROJECTION);
-		glLoadIdentity();
-		gluOrtho2D(0, screenWidth, 0, screenHeight);
-		glMatrixMode(GL_MODELVIEW);
-		glLoadIdentity();
-		this->level->draw();
-		fps->frameExecuted();
-		fps->displayFps();
-		//glFlush();
-		glutSwapBuffers();
-		//Check to see if any keys have been pressed and deal with them
-		//before rendering the next frame
+		if(updateWorld)	{
+			glClear(GL_COLOR_BUFFER_BIT);
+			glMatrixMode(GL_PROJECTION);
+			glLoadIdentity();
+			gluOrtho2D(-screenWidth/2, screenWidth/2, -screenHeight/2, screenHeight/2);
+			glMatrixMode(GL_MODELVIEW);
+			glLoadIdentity();
+			//glTranslatef(screenWidth/2, screenHeight/2, 0);
+			this->level->draw();
+			//gluLookAt(0, 0 , 5, playerLoc.x, playerLoc.y, 0, 0, 1, 0);
+			fps->frameExecuted();
+			fps->displayFps();
+			//glFlush();
+			glutSwapBuffers();
+			//Check to see if any keys have been pressed and deal with them
+			//before rendering the next frame
+		}
 		while(Input::checkKeyBuffer())	{
 			Input::keyPress k = *Input::popKey();
 			switch(k.nKey)	{
 				case 27:
 					exit(0);
+					break;
 				case 32:
 					level->player->attack(k.pressed);
+					break;
+				case 112:
+					if(updateWorld)	{
+						updateWorld = false;
+					}
+					else	{
+						updateWorld = true;
+					}
+					break;
 				default:
 					break;
 			}

@@ -4,7 +4,7 @@
 #include "includes.hpp"
 #include "fps.hpp"
 
-typedef enum {PLAYER, ENEMY, FRIENDLY} actorType;
+typedef enum {PLAYER, ENEMY, FRIENDLY, POOL} actorType;
 
 //Abstract class
 class Actor	{
@@ -13,7 +13,7 @@ public:
 	};
 	virtual ~Actor()	{
 	};
-	virtual void draw() = 0;	//Draws the actor
+	virtual void draw(Coordinate) = 0;	//Draws the actor
 	void left(bool t)	{
 		l = t;
 	}
@@ -32,6 +32,9 @@ public:
 	}
 	Coordinate getLocation()	{
 		return location;
+	}
+	void setLocation(Coordinate loc)	{
+		location = loc;
 	}
 	Velocity getVelocity()	{
 		return velocity;
@@ -53,6 +56,9 @@ public:
 	}
 	actorType getType()	{
 		return this->type;
+	}
+	AABB getBBox()	{
+		return bbox;
 	}
 	virtual Collision collide(Actor*) = 0;
 	virtual void die() = 0;
@@ -108,6 +114,18 @@ public:
 			left(true);
 		}
 	}
+	virtual void setScreen(int width, int height)	{
+		return;
+	}
+	void addScore(int x)	{
+		score += x;
+	}
+	void setOffset(Coordinate c)	{
+		offset = c;
+	}
+	void setwpLoc(Coordinate c)	{
+		wpLoc = c;
+	}
 
 	bool attacking;
 
@@ -118,6 +136,7 @@ protected:
 	Coordinate location;	//contains the actor's location
 	Velocity velocity;
 	float direction;
+	int score;
 	bool l;
 	bool r;
 	bool f;
@@ -128,9 +147,44 @@ protected:
 	float acceleration;
 	static const float deceleration;
 	AABB bbox;
+	int hwidth;
+	int hheight;
 	int cell;
+	Coordinate offset;
+	Coordinate wpLoc;
 
 	virtual Collision detectCollisions() = 0;
+	virtual void calculateBBox()	{
+		bbox.hwidth = abs((cos(D2R(direction))*hheight));
+		bbox.hheight = abs((sin(D2R(direction))*hheight));
+		if(bbox.hwidth < hwidth)	{
+			bbox.hwidth = hwidth;
+		}
+		if(bbox.hwidth > hheight)	{
+			bbox.hwidth = hheight;
+		}
+		if(bbox.hheight < hwidth)	{
+			bbox.hheight = hwidth;
+		}
+		if(bbox.hheight > hheight)	{
+			bbox.hheight = hheight;
+		}
+	}
+
+	int dirQuadrant()	{
+		if(direction >= 0 && direction < 90)	{
+			return 1;
+		}
+		else if (direction >= 90 && direction < 180)	{
+			return 2;
+		}
+		else if (direction >= 180 && direction < 270)	{
+			return 3;
+		}
+		else {
+			return 4;
+		}
+	}
 
 private:
 };

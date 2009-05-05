@@ -22,6 +22,7 @@ SET(INCLUDE_FILES
 	includes/enemy.hpp
 	includes/friendly.hpp
 	includes/cell.hpp
+	includes/whirlpool.hpp
 )
 
 SET(CODE_FILES
@@ -34,6 +35,7 @@ SET(CODE_FILES
 	src/enemy.cpp
 	src/friendly.cpp
 	src/cell.cpp
+	src/whirlpool.cpp
 )
 
 if(CMAKE_SYSTEM_NAME MATCHES "Windows")

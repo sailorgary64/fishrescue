@@ -8,22 +8,28 @@ class Player	:	public Actor	{
 public:
 	Player();
 	~Player();
-	void draw();
+	void draw(Coordinate);
 	void attack(bool);
 	Collision collide(Actor*);
 	void die();
+	void setScreen(int width, int height)	{
+		screenWidth = width;
+		screenHeight = height;
+	}
 	static Player* getPlayerHandle()	{
 		return player;
 	}
 
 private:
 	static Player* player;
+	int screenWidth;
+	int screenHeight;
 	void drawPlayer();
 	Collision detectCollisions();
+	void finishLevel();
 	//static Coordinate location;
 	float acceleration;
 	float deceleration;
-	int score;
 	float dtheta;
 	GLuint body;
 	GLuint tentacle;
@@ -33,9 +39,16 @@ private:
 	bool hit;
 	bool safe;
 	bool flash;
+	bool sucked;
 };
 
-inline void Player::draw()	{
+inline void Player::draw(Coordinate unused)	{
+	glColor3f(1,1,1);
+	string s;
+	s.assign("Score: ");
+	s.append(int2String(score));
+	renderString(412, 354, s);
+
 	int currentFps = Fps::getFps();
 	if (currentFps < 1)	{
 		currentFps = 1;
@@ -66,16 +79,12 @@ inline void Player::draw()	{
 	if (f)	{
 		dX = acceleration*cos(D2R(direction));
 		dY = acceleration*sin(D2R(direction));
-		//dX *= (250/currentFps);
-		//dY *= (250/currentFps);
 		velocity.vx += dX;
 		velocity.vy += dY;
 	}
 	else if (b)	{
 		dX = -(acceleration*cos(D2R(direction)));
 		dY = -(acceleration*sin(D2R(direction)));
-		//dX *= (250/currentFps);
-		//dY *= (250/currentFps);
 		velocity.vx += dX;
 		velocity.vy += dY;
 	}
@@ -97,12 +106,24 @@ inline void Player::draw()	{
 		}
 	}
 
+	if(sucked)	{
+		Coordinate dw;
+		dw.x = wpLoc.x - location.x;
+		dw.y = wpLoc.y - location.y;
+		if(abs(dw.x) < 10 && abs(dw.y) < 10)	{
+			velocity.vx = 0;
+			velocity.vy = 0;
+			location.x = wpLoc.x;
+			location.y = wpLoc.y;
+			finishLevel();
+		}
+		else	{
+			velocity.vx = dw.x * 0.2;
+			velocity.vy = dw.y * 0.2;
+		}
+	}
 	location.x += velocity.vx;
 	location.y += velocity.vy;
-
-	/* string s = "Player cell: ";
-	s.append(float2String(this->cell));
-	renderString(700,730,s); */
 
 	if(attacking)	{
 		int atkspeed = 6;
@@ -143,7 +164,6 @@ inline void Player::draw()	{
 
 inline void Player::drawPlayer()	{
 	glPushMatrix();
-		glTranslatef(location.x,location.y,0);
 		direction += dTheta;
 		if (direction > 360)	{
 			direction -= 360;
@@ -151,11 +171,12 @@ inline void Player::drawPlayer()	{
 		if (direction < 0)	{
 			direction += 360;
 		}
+		glTranslatef(offset.x,offset.y,0);
 		glRotatef(direction,0.0,0.0,1.0);
 		for (int i = 0; i < 8; i++)	{
 			glPushMatrix();
 				glLoadIdentity();
-				glTranslatef(location.x,location.y,0);
+				glTranslatef(offset.x,offset.y,0);
 				glRotatef(direction + atkspin,0.0,0.0,1.0);
 				int tentacleAngle = ((360/lives)*i);
 				glRotatef(tentacleAngle, 0.0, 0.0, 1.0);
