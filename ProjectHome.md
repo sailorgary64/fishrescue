@@ -1,0 +1,1 @@
+A small game where you play as an octopus who has to navigate its way out of a maze while finding and rescuing all the trapped fish in the process.
